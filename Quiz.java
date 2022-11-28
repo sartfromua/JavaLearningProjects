@@ -1,7 +1,6 @@
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Quiz {
     ArrayList<Question> questions = new ArrayList<Question>();
@@ -9,7 +8,38 @@ public class Quiz {
 
     public Scanner scan = new Scanner(System.in);
 
-    public boolean getQuestionsFromFile(String filename){
+    public boolean getQuestionsFromCSVFile(String filename){
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(
+                        new FileInputStream(filename), "windows-1251"))) {
+
+            String line = br.readLine(); // Пропускаем лишний текст
+            Question question = new Question();
+
+            while ((line = br.readLine()) != null) {
+                String[] cols = line.split(";");
+                int i = 0;
+                for (String col: cols) {
+                    if (col.replaceAll(" ", "").equals("")) continue;
+
+                    switch (i++) {
+                        case 0: question.question = col;
+                        case 1: question.rightAnswer = col;
+                        default: {
+                            if (i!= 1) question.options.add(col);
+                        }
+                    }
+                }
+                if (question.isReady()) questions.add(question);
+                question = new Question();
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        return true;
+    }
+
+    public boolean getQuestionsFromFile(String filename) {
         try {
             FileReader fr = new FileReader(filename);
             Scanner file = new Scanner(fr);
@@ -22,10 +52,9 @@ public class Quiz {
                     question.question = line;
                 } else if (!line.equals("")) {
                     if (line.startsWith("!")) {
-                        question.rightAnswer = line;
-                        question.options.add(line);
-                    }
-                    else question.options.add(line);
+                        question.rightAnswer = line.replace("!", "");
+                        question.options.add(line.replace("!", ""));
+                    } else question.options.add(line);
                 } else {
                     questions.add(question);
                     question = new Question();
@@ -72,9 +101,15 @@ public class Quiz {
     }
 
     public void showScoreBoard() {
+        int maxLength = Collections.max(scoreboard.keySet().stream().toList().stream()
+                .map(String::length).toList());
+        System.out.println("+" + "-".repeat(maxLength+6) + "+");
         for (String player: scoreboard.keySet()) {
-            System.out.println(player + " - " + scoreboard.get(player));
+            System.out.println("| " + player + " ".repeat(maxLength-player.length()) + " | " +
+                    scoreboard.get(player) + " |");
+            System.out.println("+" + "-".repeat(maxLength+6) + "+");
         }
+
     }
 
     public void playQuiz() {
@@ -99,11 +134,13 @@ public class Quiz {
             }
 
         }
+        System.out.println("Thanks for playing!");
     }
 
     public static void main(String[] args) {
         Quiz quiz = new Quiz();
-        quiz.getQuestionsFromFile("src\\TestQuestions.txt");
+        quiz.getQuestionsFromCSVFile("List_of_questions.csv");
         quiz.playQuiz();
-    }
+        }
 }
+

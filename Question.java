@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class Question implements QuestionInterface{
     String question;
@@ -10,7 +9,8 @@ public class Question implements QuestionInterface{
 
     @Override
     public String askQuestion() {
-        System.out.println(question);
+        System.out.println("\n"+question);
+        Collections.shuffle(options);
         int i=1;
         for (String option: options) {
             System.out.println(i++ + ". " + option);
@@ -41,6 +41,11 @@ public class Question implements QuestionInterface{
     }
 
     @Override
+    public boolean isReady() {
+        return (question != null) && (!options.isEmpty()) && (rightAnswer != null);
+    }
+
+    @Override
     public String getRightAnswer() {
         return rightAnswer;
     }
@@ -66,5 +71,16 @@ public class Question implements QuestionInterface{
     @Override
     public boolean inputFromFile(String filename) {
         return false;
+    }
+
+    public static void main(String[] args) {
+        Question q1 = new Question();
+        System.out.println(q1.isReady());
+        q1.rightAnswer = "1";
+        System.out.println(q1.isReady());
+        q1.options.add("12");
+        System.out.println(q1.isReady());
+        q1.question = "123?";
+        System.out.println(q1.isReady());
     }
 }
