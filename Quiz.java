@@ -76,16 +76,17 @@ public class Quiz {
         return encryption;
     }
 
-    public ArrayList<String> askQuestions() {
+    private ArrayList<String> askQuestions() {
         ArrayList<String> key = new ArrayList<String>();
         int i = 0;
+        Collections.shuffle(questions);
         for (Question quest: questions) {
             key.add(quest.askQuestion());
         }
         return encrypt(key);
     }
 
-    public int score(ArrayList<String> answers) {
+    private int score(ArrayList<String> answers) {
         int score = 0;
         for (int i=0; i<questions.size(); i++) {
             if (questions.get(i).checkAnswer(answers.get(i))) score += 1;
@@ -98,6 +99,18 @@ public class Quiz {
         String player = scan.next();
         int score = score(decrypt(askQuestions()));
         scoreboard.put(player, score);
+        sortScore();
+    }
+
+    private void sortScore() {
+        scoreboard = scoreboard.entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (e1, e2) -> e1,
+                                LinkedHashMap::new));
     }
 
     public void showScoreBoard() {
@@ -138,9 +151,9 @@ public class Quiz {
     }
 
     public static void main(String[] args) {
-        Quiz quiz = new Quiz();
-        quiz.getQuestionsFromCSVFile("List_of_questions.csv");
-        quiz.playQuiz();
+//        Quiz quiz = new Quiz();
+//        quiz.getQuestionsFromCSVFile("List_of_questions.csv");
+//        quiz.playQuiz();
         }
 }
 
