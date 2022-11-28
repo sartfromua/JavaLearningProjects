@@ -1,0 +1,9 @@
+Whats ur name?
+!Bogdan
+Tony
+Andrew
+
+What color sun is?
+red
+!Yellow
+Blue
